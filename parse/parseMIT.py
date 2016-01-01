@@ -2,7 +2,7 @@ import sys, datetime, csv, urllib2, string, json, re
 from collections import defaultdict
 
 def gimmelists():
-	f = open('Mit Courses 16th Dec 14_44.json', 'r')
+	f = open('../data/Mit Courses 16th Dec 14_44.json', 'r')
 	j = f.read()
 	l = json.loads(j)
 
@@ -55,7 +55,7 @@ def gimmelists():
 	courseware_num_to_name = {}
 	courseware_name_to_num = {}
 	courseware_num_to_link = {}
-	with open('mit_courseware_data.csv') as f:
+	with open('../data/mit_courseware_data.csv') as f:
 		reader = csv.DictReader(f)
 		for row in reader:
 			num = row.get('course_num/_text')
