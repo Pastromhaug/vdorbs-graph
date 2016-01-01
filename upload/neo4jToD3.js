@@ -1,17 +1,20 @@
 var neo4j = require('node-neo4j');
 var fs = require('fs');
-var personalsettings = require('../personalsettings.js');
 var AWS = require('aws-sdk');
 
-//Create a db object. We will using this object to work on the DB.
-console.log(personalsettings.neo4jpassword);
-db = new neo4j('http://neo4j:' + personalsettings.neo4jpassword + '@localhost:7474');
 
 
-// queries the neo4j graph database and stores it in data.js in a d3 friendly format
-uploadwholegraph();
-uploadAllSubjects();
-uploadAllCourses();
+var config;
+var db;
+
+fs.readFile('../config.json', 'utf8', function (err, data) {
+    if (err) throw err;
+    config = JSON.parse(data);
+    db = new neo4j('http://neo4j:' + config.neo4jPassword + '@localhost:' + config.neo4jPort);
+    uploadwholegraph();
+    uploadAllSubjects();
+    uploadAllCourses();
+});
 
 function uploadAllSubjects(){
     db.cypherQuery(
@@ -63,9 +66,7 @@ function uploadwholegraph(){
                         return console.log(err);
                     }
                     var data = parseLinks(noderes, result.data);
-                    //console.log(data);
-                    fs.writeFile("./js/data.js", "var data = " + JSON.stringify(data));
-                    s3upload('vdorbslessons/Graphs', 'wholegraph',data);
+                    s3upload('/Graphs', 'wholegraph',data);
                     return (data);
                 }
             );
@@ -103,7 +104,7 @@ function uploadSubject(subject){
                         function(err, result){
                             if (err) {console.log(err);}
                             var fin = parseLinks(uniquenodes, result.data);
-                            s3upload('vdorbslessons/Graphs/Subjects', subject, fin);
+                            s3upload('/Graphs/Subjects', subject, fin);
                         }
                     );
                 }
@@ -126,7 +127,7 @@ function uploadCourse(course){
                     if (err) {console.log(err);}
                     var allnodes = firstnodes.concat(result.data);
                     var namelist = [];
-                    var uniquenodes = []
+                    var uniquenodes = [];
                     var i;
                     var numnodes = allnodes.length;
                     for (i = 0; i < numnodes; i++){
@@ -143,7 +144,7 @@ function uploadCourse(course){
                         function(err, result){
                             if (err) {console.log(err);}
                             var fin = parseLinks(uniquenodes, result.data);
-                            s3upload('vdorbslessons/Graphs/Courses', course, fin);
+                            s3upload('/Graphs/Courses', course, fin);
                         }
                     );
                 }
@@ -190,11 +191,11 @@ function parseLinks(nodes,links){
 }
 
 //uploads data to an s3 bucket
-function s3upload(bucketname, filename, data){
+function s3upload(bucketdir, filename, data){
     var key = filename;
-    AWS.config.update({accessKeyId: 'AKIAJFKCAKC5DOCNOZAQ', secretAccessKey: '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'});
-    AWS.config.region = 'us-east-1';
-    var s3 = new AWS.S3({params: {Bucket: bucketname}});
+    AWS.config.update({accessKeyId: config.s3AccessKeyId, secretAccessKey: config.s3SecretAccessKey});
+    AWS.config.region = config.s3Region;
+    var s3 = new AWS.S3({params: {Bucket: config.s3BucketName + bucketdir}});
     var params = {Key: key, ContentType: 'application/json', Body: JSON.stringify(data)};
 
     s3.upload(params, function(err, resp){
