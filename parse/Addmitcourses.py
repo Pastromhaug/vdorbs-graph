@@ -1,7 +1,14 @@
 from neo4jrestclient.client import GraphDatabase
 import parseMIT
 
-db = GraphDatabase("http://localhost:7474", username="neo4j", password="Qmkg9awn")
+import json
+from pprint import pprint
+
+with open('../config.json') as data_file:
+    config = json.load(data_file)
+
+
+db = GraphDatabase("http://localhost:" + config['neo4jPort'], username=config['neo4jUser'], password=config['neo4jPassword'])
 
 subjectmap = {
     '1': 'Civil and Environmental Engineering',
