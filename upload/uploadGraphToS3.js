@@ -2,8 +2,6 @@ var neo4j = require('node-neo4j');
 var fs = require('fs');
 var AWS = require('aws-sdk');
 
-
-
 var config;
 var db;
 

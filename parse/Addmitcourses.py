@@ -2,7 +2,6 @@ from neo4jrestclient.client import GraphDatabase
 import parseMIT
 
 import json
-from pprint import pprint
 
 with open('../config.json') as data_file:
     config = json.load(data_file)
@@ -36,17 +35,17 @@ subjectmap = {
 print len(courses)
 
 
-
+t = 0
 for coursename in courses.keys():
     prerequisitelist = courses[coursename]
     courseno = nameToNumber[coursename]
 
-    num = courseno[0].split('.')[0];
+    num = courseno[0].split('.')[0]
     try:
-        subjectmap[num];
+        subjectmap[num]
     except:
-        continue;
-
+        continue
+    t = t + 1
     print "name: " + coursename + "   number: " + courseno[0]
     for prereqOrGroup in prerequisitelist:
         for prereqName in prereqOrGroup:
@@ -60,16 +59,16 @@ for coursename in courses.keys():
             results = db.query(query)
             for r in results:
                 print(r)
-
+print t
 query = 'match (n:MITcourse) optional match n -[:prereq] -> (b) return n.name, n.coursenum, count(b)'
 results = db.query(query)
 for r in results:
     name = r[0]
     num = r[1]
-    subjectno = str(num).split('.')[0];
+    subjectno = str(num).split('.')[0]
     subject = ""
     try:
-        subject = subjectmap[subjectno];
+        subject = subjectmap[subjectno]
     except:
         subject = "?"
     edges = r[2]
