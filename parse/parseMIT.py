@@ -56,7 +56,7 @@ def gimmelists():
     courseware_num_to_name = {}
     courseware_name_to_num = {}
     courseware_num_to_link = {}
-    with open('../data/mit_courseware_data.csv') as f:
+    with open('../data/MIT Video Courseware.csv') as f:
         reader = csv.DictReader(f)
         for row in reader:
             num = row.get('course_num/_text')
@@ -167,4 +167,7 @@ def gimmelists():
             l+=l2
         course_dictionary[course] = l
 
+ 
     return course_dictionary, courseware_name_to_num
+
+
